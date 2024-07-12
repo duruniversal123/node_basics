@@ -2,7 +2,7 @@ const express = require("express");
 
 const Router = express.Router();
 
-const users=require("../data/users")
+const users = require("../data/users");
 
 Router.get("/", function (req, res) {
   res.send({
@@ -20,26 +20,18 @@ Router.get("/home", function (req, res) {
 
 //user email-send
 
-const nodemailer = require("nodemailer");
-Router.get("/user-email-send", function (req, res) {
-  const transporter=nodemailer.createTransport({
-    host:process.env.SMTP_HOST,
-    port:process.env.SMTP_PORT,
-    auth:{
-        user:process.env.SMTP_USERNAME,
-        pass:process.env.SMTP_PASSWORD
-    }
-  });
-  const info=transporter.sendMail({
-    from:process.env.SMTP_USERNAME,
-    to:"ajay36659@gmail.com",
-    subject:"Welcome Ajay",
-    html:'<p>hello ajay</p>'
-  });
-  res.send({message:'message sent successfully',statu:1});
-
-
-
+const emailSend = require("../helper/email-send");
+Router.get("/user-email-send/:user", async function (req, res) {
+  const user = req.params.user;
+  const emailInfo = await emailSend(user);
+  if (emailInfo) {
+    res.send({ message: `message sent successfully to ${user}`, status: 1 });
+  } else {
+    res.send({
+      message: `message not sent to ${user} email ,please tryt again after sometime!`,
+      status: 0,
+    });
+  }
 });
 
 //get all users data request
